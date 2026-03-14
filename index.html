@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CRM Immo">
+<title>CRM Immo — Tristan</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --surface2: #1e2330;
+    --border: #272d3d;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --text: #e8eaf0;
+    --text-muted: #7a8399;
+    --green: #3ecf8e;
+    --red: #f04444;
+    --orange: #f59e0b;
+    --blue: #4a9eff;
+    --purple: #a78bfa;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    position: sticky; top:0; z-index:100;
+    display: flex; align-items: center; gap: 12px;
+    height: 56px;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem; font-weight: 800;
+    color: var(--gold);
+    letter-spacing: 0.03em;
+    flex:1;
+  }
+  header span { font-size: 0.7rem; color: var(--text-muted); }
+
+  /* NAV TABS */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky; top:56px; z-index:99;
+  }
+  nav::-webkit-scrollbar { display:none; }
+  nav button {
+    flex: 0 0 auto;
+    background: none; border: none;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem; font-weight: 500;
+    padding: 12px 18px;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+  }
+  nav button.active { color: var(--gold); border-bottom-color: var(--gold); }
+  nav button:hover { color: var(--text); }
+  .badge {
+    background: var(--red);
+    color: #fff;
+    font-size: 0.6rem; font-weight: 700;
+    border-radius: 999px;
+    padding: 1px 5px;
+    position: absolute; top: 6px; right: 8px;
+  }
+
+  /* MAIN */
+  main { padding: 20px; max-width: 900px; margin: 0 auto; }
+
+  /* SECTION */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--gold); }
+  .card-header { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom: 8px; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
+  .card-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .card-body { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+  .card-actions { display:flex; gap:8px; margin-top: 12px; flex-wrap: wrap; }
+
+  /* STATUS PILLS */
+  .pill {
+    display: inline-block;
+    font-size: 0.68rem; font-weight: 600;
+    padding: 3px 10px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .pill-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill-green { background: rgba(62,207,142,0.15); color: var(--green); }
+  .pill-red { background: rgba(240,68,68,0.15); color: var(--red); }
+  .pill-blue { background: rgba(74,158,255,0.15); color: var(--blue); }
+  .pill-purple { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .pill-gold { background: rgba(201,168,76,0.15); color: var(--gold); }
+  .pill-muted { background: var(--surface2); color: var(--text-muted); }
+
+  /* BUTTONS */
+  .btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem; font-weight: 500;
+    padding: 6px 12px; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-primary {
+    background: var(--gold); border-color: var(--gold);
+    color: #0d0f14; font-weight: 700;
+  }
+  .btn-primary:hover { background: var(--gold-light); border-color: var(--gold-light); color: #0d0f14; }
+  .btn-danger { border-color: rgba(240,68,68,0.4); color: var(--red); }
+  .btn-danger:hover { background: rgba(240,68,68,0.1); border-color: var(--red); }
+  .btn-promote { border-color: rgba(62,207,142,0.4); color: var(--green); }
+  .btn-promote:hover { background: rgba(62,207,142,0.1); border-color: var(--green); }
+
+  /* ADD BUTTON */
+  .add-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    border: none; border-radius: var(--radius);
+    color: #0d0f14; font-family: 'Syne', sans-serif;
+    font-size: 0.85rem; font-weight: 700;
+    padding: 12px 18px; cursor: pointer;
+    margin-bottom: 20px; width: 100%;
+    justify-content: center;
+    transition: opacity 0.2s;
+  }
+  .add-btn:hover { opacity: 0.9; }
+
+  /* MODAL */
+  .overlay {
+    position: fixed; inset:0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200; display:none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    width: 100%; max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px 20px 40px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(40px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem; font-weight: 800;
+    color: var(--gold); margin-bottom: 20px;
+  }
+  .modal-close {
+    float: right; background: var(--surface2);
+    border: none; color: var(--text-muted);
+    width: 28px; height: 28px; border-radius: 999px;
+    font-size: 1rem; cursor: pointer; line-height: 28px; text-align: center;
+  }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+  .form-full { grid-column: 1 / -1; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    padding: 9px 12px;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--gold);
+  }
+  select option { background: var(--surface2); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* SECTION SEPARATOR */
+  .form-section {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 14px 0 6px;
+    border-top: 1px solid var(--border);
+    margin-top: 6px;
+    grid-column: 1 / -1;
+  }
+
+  /* CHECKBOXES */
+  .check-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .check-item {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 10px;
+    cursor: pointer; font-size: 0.78rem;
+    transition: all 0.15s;
+  }
+  .check-item input[type=checkbox] { width: auto; accent-color: var(--gold); }
+
+  /* DASHBOARD */
+  .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media (min-width: 600px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem; font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .stat-label { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* ALERTS */
+  .alert-card {
+    background: rgba(240,68,68,0.08);
+    border: 1px solid rgba(240,68,68,0.3);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .alert-card .icon { font-size: 1.2rem; }
+  .alert-card .info { flex:1; }
+  .alert-card .info strong { font-size: 0.88rem; display: block; }
+  .alert-card .info span { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center; padding: 50px 20px;
+    color: var(--text-muted); font-size: 0.85rem;
+  }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+  /* PIPELINE */
+  .pipeline { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
+  .pipeline-step {
+    flex: 0 0 auto;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pipeline-step.active { background: rgba(201,168,76,0.15); border-color: var(--gold); color: var(--gold); }
+
+  /* ALERT BANNER */
+  #alert-banner {
+    background: rgba(240,68,68,0.1);
+    border: 1px solid rgba(240,68,68,0.3);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+    display: none;
+  }
+
+  .drive-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text-muted);
+    font-family: 'Inter', sans-serif; font-size: 0.72rem;
+    font-weight: 600; padding: 5px 10px; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .drive-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .drive-btn.connected { border-color: rgba(62,207,142,0.4); color: var(--green); }
+  .drive-btn.syncing { border-color: var(--orange); color: var(--orange); }
+  .drive-status {
+    font-size: 0.65rem; color: var(--text-muted);
+    white-space: nowrap; display: none;
+  }
+    font-size: 0.72rem; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 3px 8px; color: var(--blue);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏠 CRM Immo</h1>
+  <span id="today-date"></span>
+  <button class="drive-btn" id="drive-connect-btn" onclick="driveConnect()">☁️ Connecter Drive</button>
+  <button class="drive-btn connected" id="drive-save-btn" onclick="driveSave()" style="display:none">💾 Sauver</button>
+  <button class="drive-btn" id="drive-load-btn" onclick="driveLoad()" style="display:none">🔄 Charger</button>
+  <span class="drive-status" id="drive-status"></span>
+
+<nav>
+  <button class="active" onclick="showTab('dashboard')">📊 Dashboard</button>
+  <button onclick="showTab('prospects')" id="tab-prospects">📞 Prospects</button>
+  <button onclick="showTab('vendeurs')" id="tab-vendeurs">🤝 Vendeurs</button>
+  <button onclick="showTab('biens')" id="tab-biens">🏡 Biens</button>
+  <button onclick="showTab('acheteurs')" id="tab-acheteurs">🔍 Acheteurs</button>
+</nav>
+
+<main>
+
+<!-- ============ DASHBOARD ============ -->
+<section id="dashboard" class="section active">
+  <div id="alert-banner"></div>
+  <div class="stat-grid" id="stats"></div>
+  <h2 style="font-family:'Syne',sans-serif;font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">⚠️ À faire aujourd'hui</h2>
+  <div id="today-alerts"></div>
+  <h2 style="font-family:'Syne',sans-serif;font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 12px;">📅 Rappels à venir (7j)</h2>
+  <div id="upcoming-alerts"></div>
+</section>
+
+<!-- ============ PROSPECTS ============ -->
+<section id="prospects" class="section">
+  <button class="add-btn" onclick="openModal('prospect')">+ Nouveau prospect</button>
+  <div class="pipeline" id="pipeline-prospect">
+    <div class="pipeline-step active" onclick="filterList('prospect','')">Tous</div>
+    <div class="pipeline-step" onclick="filterList('prospect','rappeler')">À rappeler</div>
+    <div class="pipeline-step" onclick="filterList('prospect','interesse')">Intéressé</div>
+    <div class="pipeline-step" onclick="filterList('prospect','refus')">Refus</div>
+    <div class="pipeline-step" onclick="filterList('prospect','pas_repondu')">Pas répondu</div>
+  </div>
+  <div id="list-prospects"></div>
+</section>
+
+<!-- ============ VENDEURS ============ -->
+<section id="vendeurs" class="section">
+  <button class="add-btn" onclick="openModal('vendeur')">+ Nouveau vendeur</button>
+  <div class="pipeline" id="pipeline-vendeur">
+    <div class="pipeline-step active" onclick="filterList('vendeur','')">Tous</div>
+    <div class="pipeline-step" onclick="filterList('vendeur','prospect')">Prospect</div>
+    <div class="pipeline-step" onclick="filterList('vendeur','rdv_fixe')">RDV fixé</div>
+    <div class="pipeline-step" onclick="filterList('vendeur','rdv_fait')">RDV fait</div>
+    <div class="pipeline-step" onclick="filterList('vendeur','mandat')">Mandat</div>
+    <div class="pipeline-step" onclick="filterList('vendeur','vendu')">Vendu ✓</div>
+  </div>
+  <div id="list-vendeurs"></div>
+</section>
+
+<!-- ============ BIENS ============ -->
+<section id="biens" class="section">
+  <button class="add-btn" onclick="openModal('bien')">+ Nouveau bien</button>
+  <div id="list-biens"></div>
+</section>
+
+<!-- ============ ACHETEURS ============ -->
+<section id="acheteurs" class="section">
+  <button class="add-btn" onclick="openModal('acheteur')">+ Nouvel acheteur</button>
+  <div id="list-acheteurs"></div>
+</section>
+
+</main>
+
+<!-- ============ MODALS ============ -->
+
+<!-- MODAL PROSPECT -->
+<div class="overlay" id="modal-prospect">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('prospect')">✕</button>
+    <div class="modal-title" id="modal-prospect-title">Nouveau prospect</div>
+    <div class="form-grid">
+      <input type="hidden" id="p-id">
+      <div class="form-group">
+        <label>Nom *</label>
+        <input type="text" id="p-nom" placeholder="Dupont Jean">
+      </div>
+      <div class="form-group">
+        <label>Téléphone</label>
+        <input type="tel" id="p-tel" placeholder="06 00 00 00 00">
+      </div>
+      <div class="form-group form-full">
+        <label>Adresse du bien</label>
+        <input type="text" id="p-adresse" placeholder="12 rue de la Paix, 75001 Paris">
+      </div>
+      <div class="form-group">
+        <label>Source</label>
+        <select id="p-source">
+          <option value="">— Choisir —</option>
+          <option>Le Bon Coin</option>
+          <option>PAP</option>
+          <option>SeLoger</option>
+          <option>Bouche à oreille</option>
+          <option>Terrain / Porte</option>
+          <option>Autre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Statut *</label>
+        <select id="p-statut">
+          <option value="pas_repondu">Pas répondu</option>
+          <option value="rappeler">À rappeler</option>
+          <option value="interesse">Intéressé</option>
+          <option value="refus">Refus</option>
+        </select>
+      </div>
+      <div class="form-group" id="p-raison-group">
+        <label>Raison du refus</label>
+        <select id="p-raison">
+          <option value="">— Choisir —</option>
+          <option>Veut vendre seul</option>
+          <option>Déjà avec un autre agent</option>
+          <option>Pas encore prêt</option>
+          <option>Prix non aligné</option>
+          <option>Autre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date de rappel</label>
+        <input type="date" id="p-rappel">
+      </div>
+      <div class="form-group form-full">
+        <label>Commentaire</label>
+        <textarea id="p-comment" placeholder="Notes libres..."></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="saveProspect()">Enregistrer</button>
+      <button class="btn btn-promote" id="btn-promote-vendeur" onclick="promoteToVendeur()" style="display:none">→ Promouvoir en Vendeur</button>
+      <button class="btn" onclick="closeModal('prospect')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VENDEUR -->
+<div class="overlay" id="modal-vendeur">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('vendeur')">✕</button>
+    <div class="modal-title" id="modal-vendeur-title">Nouveau vendeur</div>
+    <div class="form-grid">
+      <input type="hidden" id="v-id">
+      <div class="form-section">Identité</div>
+      <div class="form-group">
+        <label>Nom *</label>
+        <input type="text" id="v-nom" placeholder="Dupont Jean">
+      </div>
+      <div class="form-group">
+        <label>Téléphone</label>
+        <input type="tel" id="v-tel" placeholder="06 00 00 00 00">
+      </div>
+      <div class="form-group form-full">
+        <label>Email</label>
+        <input type="email" id="v-email" placeholder="email@exemple.fr">
+      </div>
+      <div class="form-group">
+        <label>Seul propriétaire ?</label>
+        <select id="v-proprio">
+          <option value="oui">Oui</option>
+          <option value="non">Non (co-propriétaire)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Statut pipeline</label>
+        <select id="v-statut">
+          <option value="prospect">Prospect</option>
+          <option value="rdv_fixe">RDV fixé</option>
+          <option value="rdv_fait">RDV fait</option>
+          <option value="mandat">Mandat</option>
+          <option value="vendu">Vendu</option>
+        </select>
+      </div>
+      <div class="form-section">Découverte</div>
+      <div class="form-group form-full">
+        <label>Motivation de vente</label>
+        <textarea id="v-motivation" placeholder="Pourquoi vendre ? Déménagement, divorce, succession..."></textarea>
+      </div>
+      <div class="form-group form-full">
+        <label>Qu'est-ce qui lui avait plu lors de l'achat ?</label>
+        <textarea id="v-achat-plu" placeholder="Ce qui l'avait séduit à l'époque..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Comment avait-il acheté ?</label>
+        <select id="v-comment-achat">
+          <option value="">— Choisir —</option>
+          <option>Via un agent</option>
+          <option>En direct / PAP</option>
+          <option>Notaire</option>
+          <option>Promotion neuve</option>
+          <option>Héritage</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date idéale de déménagement</label>
+        <input type="date" id="v-demenagement">
+      </div>
+      <div class="form-group">
+        <label>Bien en vente depuis</label>
+        <select id="v-depuis">
+          <option value="">— Choisir —</option>
+          <option>Pas encore</option>
+          <option>Moins d'1 mois</option>
+          <option>1-3 mois</option>
+          <option>3-6 mois</option>
+          <option>+ de 6 mois</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Y a-t-il eu des visites ?</label>
+        <select id="v-visites">
+          <option value="non">Non</option>
+          <option value="oui">Oui</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Y a-t-il eu des offres ?</label>
+        <select id="v-offres">
+          <option value="non">Non</option>
+          <option value="oui">Oui</option>
+        </select>
+      </div>
+      <div class="form-group form-full">
+        <label>Si pas vendu, que se passerait-il ?</label>
+        <textarea id="v-si-pas-vendu" placeholder="Plan B du vendeur..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Prix vendeur estimé (€)</label>
+        <input type="number" id="v-prix-vendeur" placeholder="450000">
+      </div>
+      <div class="form-group">
+        <label>Date de rappel</label>
+        <input type="date" id="v-rappel">
+      </div>
+      <div class="form-group form-full">
+        <label>Commentaires</label>
+        <textarea id="v-comment" placeholder="Notes libres, impressions..."></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="saveVendeur()">Enregistrer</button>
+      <button class="btn btn-promote" onclick="promoteVendeurToBien()" id="btn-to-bien" style="display:none">→ Créer fiche bien</button>
+      <button class="btn" onclick="closeModal('vendeur')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BIEN -->
+<div class="overlay" id="modal-bien">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('bien')">✕</button>
+    <div class="modal-title" id="modal-bien-title">Fiche technique bien</div>
+    <div class="form-grid">
+      <input type="hidden" id="b-id">
+      <div class="form-section">Identification</div>
+      <div class="form-group form-full">
+        <label>Adresse complète *</label>
+        <input type="text" id="b-adresse" placeholder="48 rue Joseph de Maistre, 75018 Paris">
+      </div>
+      <div class="form-group">
+        <label>Vendeur lié</label>
+        <select id="b-vendeur-id"></select>
+      </div>
+      <div class="form-group">
+        <label>Type de bien</label>
+        <select id="b-type">
+          <option>Appartement</option>
+          <option>Maison</option>
+          <option>Studio</option>
+          <option>Loft</option>
+          <option>Immeuble</option>
+          <option>Terrain</option>
+        </select>
+      </div>
+      <div class="form-section">Surfaces & Pièces</div>
+      <div class="form-group">
+        <label>Surface habitable (m²)</label>
+        <input type="number" id="b-surface" placeholder="51">
+      </div>
+      <div class="form-group">
+        <label>Surface loi Carrez (m²)</label>
+        <input type="number" id="b-carrez" placeholder="49">
+      </div>
+      <div class="form-group">
+        <label>Surface séjour (m²)</label>
+        <input type="number" id="b-surface-sejour" placeholder="20">
+      </div>
+      <div class="form-group">
+        <label>Nb de pièces</label>
+        <input type="number" id="b-pieces" placeholder="3">
+      </div>
+      <div class="form-group">
+        <label>Nb de chambres</label>
+        <input type="number" id="b-chambres" placeholder="1">
+      </div>
+      <div class="form-group">
+        <label>Étage</label>
+        <input type="text" id="b-etage" placeholder="2e">
+      </div>
+      <div class="form-group">
+        <label>Nb d'étages total</label>
+        <input type="number" id="b-etages-total" placeholder="6">
+      </div>
+      <div class="form-group">
+        <label>Nb de SDB</label>
+        <input type="number" id="b-sdb" placeholder="1">
+      </div>
+      <div class="form-group">
+        <label>Nb de salles d'eau</label>
+        <input type="number" id="b-sde" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Nb de WC</label>
+        <input type="number" id="b-wc" placeholder="1">
+      </div>
+      <div class="form-group form-full">
+        <label>Meublé / Dernier étage</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" id="b-meuble"> Meublé</label>
+          <label class="check-item"><input type="checkbox" id="b-dernier-etage"> Dernier étage</label>
+        </div>
+      </div>
+
+      <div class="form-section">Pièces & Niveaux — Détail</div>
+      <div class="form-group form-full">
+        <div id="pieces-niveaux-container" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <button type="button" class="btn btn-promote" onclick="addPieceRow()" style="margin-top:8px;width:100%;">+ Ajouter une pièce</button>
+      </div>
+      <div class="form-section">Équipements</div>
+      <div class="form-group form-full">
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" id="b-asc"> Ascenseur</label>
+          <label class="check-item"><input type="checkbox" id="b-balcon"> Balcon</label>
+          <label class="check-item"><input type="checkbox" id="b-terrasse"> Terrasse</label>
+          <label class="check-item"><input type="checkbox" id="b-cave"> Cave</label>
+          <label class="check-item"><input type="checkbox" id="b-gardien"> Gardien</label>
+          <label class="check-item"><input type="checkbox" id="b-digicode"> Digicode/Interphone</label>
+          <label class="check-item"><input type="checkbox" id="b-fibre"> Fibre optique</label>
+          <label class="check-item"><input type="checkbox" id="b-parking"> Parking</label>
+          <label class="check-item"><input type="checkbox" id="b-garage"> Garage</label>
+          <label class="check-item"><input type="checkbox" id="b-piscine"> Piscine</label>
+          <label class="check-item"><input type="checkbox" id="b-alarme"> Alarme</label>
+          <label class="check-item"><input type="checkbox" id="b-portblindee"> Porte blindée</label>
+          <label class="check-item"><input type="checkbox" id="b-videophone"> Vidéophone</label>
+          <label class="check-item"><input type="checkbox" id="b-climatisation"> Climatisation</label>
+          <label class="check-item"><input type="checkbox" id="b-volets-elec"> Volets roulants élec.</label>
+          <label class="check-item"><input type="checkbox" id="b-volets-man"> Volets roulants man.</label>
+          <label class="check-item"><input type="checkbox" id="b-survitrage"> Survitrage</label>
+          <label class="check-item"><input type="checkbox" id="b-double-vitrage"> Double vitrage</label>
+          <label class="check-item"><input type="checkbox" id="b-barbecue"> Barbecue</label>
+          <label class="check-item"><input type="checkbox" id="b-cour"> Cour</label>
+          <label class="check-item"><input type="checkbox" id="b-portail-auto"> Portail automatique</label>
+          <label class="check-item"><input type="checkbox" id="b-acc-handicape"> Accès handicapé</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cuisine</label>
+        <select id="b-cuisine">
+          <option value="">—</option>
+          <option>Aménagée</option>
+          <option>Équipée</option>
+          <option>Américaine</option>
+          <option>Coin cuisine</option>
+          <option>Vide</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Chauffage</label>
+        <select id="b-chauffage">
+          <option value="">—</option>
+          <option>Gaz</option>
+          <option>Électrique</option>
+          <option>Climatisation réversible</option>
+          <option>Pompe à chaleur</option>
+          <option>Fuel</option>
+          <option>Bois/Poêle</option>
+          <option>Solaire</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Type de chauffage (individuel/collectif)</label>
+        <select id="b-type-chauffage">
+          <option value="">—</option>
+          <option>Individuel</option>
+          <option>Collectif</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Revêtement de sol</label>
+        <input type="text" id="b-sol" placeholder="Parquet, carrelage...">
+      </div>
+      <div class="form-group">
+        <label>Menuiserie</label>
+        <input type="text" id="b-menuiserie" placeholder="Double vitrage PVC...">
+      </div>
+      <div class="form-group">
+        <label>Isolation</label>
+        <input type="text" id="b-isolation" placeholder="Laine de verre, ITE...">
+      </div>
+      <div class="form-group">
+        <label>Nb parkings extérieurs</label>
+        <input type="number" id="b-parking-ext" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Nb parkings intérieurs</label>
+        <input type="number" id="b-parking-int" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Nb de garages</label>
+        <input type="number" id="b-nb-garages" placeholder="0">
+      </div>
+      <div class="form-section">Environnement</div>
+      <div class="form-group">
+        <label>Exposition</label>
+        <select id="b-exposition">
+          <option value="">—</option>
+          <option>Nord</option><option>Sud</option>
+          <option>Est</option><option>Ouest</option>
+          <option>Sud-Est</option><option>Sud-Ouest</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Vis-à-vis</label>
+        <select id="b-vis-a-vis">
+          <option value="">—</option>
+          <option>Aucun</option>
+          <option>Léger</option>
+          <option>Proche</option>
+          <option>Très proche</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Luminosité</label>
+        <select id="b-luminosite">
+          <option value="">—</option>
+          <option>Très lumineux</option>
+          <option>Lumineux</option>
+          <option>Légèrement sombre</option>
+          <option>Sombre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Calme</label>
+        <select id="b-calme">
+          <option value="">—</option>
+          <option>Très calme</option>
+          <option>Calme</option>
+          <option>Animé</option>
+          <option>Bruyant</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Vue</label>
+        <input type="text" id="b-vue" placeholder="Dégagée, cour, rue...">
+      </div>
+      <div class="form-group form-full">
+        <label>Transports à proximité</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" id="b-metro"> Métro</label>
+          <label class="check-item"><input type="checkbox" id="b-bus"> Bus</label>
+          <label class="check-item"><input type="checkbox" id="b-rer"> RER/Transilien</label>
+          <label class="check-item"><input type="checkbox" id="b-tram"> Tramway</label>
+          <label class="check-item"><input type="checkbox" id="b-gare"> Gare</label>
+        </div>
+      </div>
+      <div class="form-section">Infos financières</div>
+      <div class="form-group">
+        <label>Prix estimation (€)</label>
+        <input type="number" id="b-prix-estimation" placeholder="487000">
+      </div>
+      <div class="form-group">
+        <label>Prix net vendeur (€)</label>
+        <input type="number" id="b-prix-net" placeholder="470000">
+      </div>
+      <div class="form-group">
+        <label>Honoraires (€)</label>
+        <input type="number" id="b-honoraires" placeholder="17000">
+      </div>
+      <div class="form-group">
+        <label>Prix FAI (€)</label>
+        <input type="number" id="b-prix-fai" placeholder="487000">
+      </div>
+      <div class="form-group">
+        <label>Charges mensuelles (€)</label>
+        <input type="number" id="b-charges" placeholder="120">
+      </div>
+      <div class="form-group">
+        <label>Budget charges annuelles (€)</label>
+        <input type="number" id="b-charges-annuelles" placeholder="1440">
+      </div>
+      <div class="form-group">
+        <label>Taxe foncière (€/an)</label>
+        <input type="number" id="b-tf" placeholder="800">
+      </div>
+      <div class="form-group">
+        <label>Taxe d'habitation (€/an)</label>
+        <input type="number" id="b-th" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Nb lots copropriété</label>
+        <input type="number" id="b-lots" placeholder="20">
+      </div>
+      <div class="form-group">
+        <label>Copropriété ?</label>
+        <select id="b-copro">
+          <option value="">—</option>
+          <option value="oui">Oui</option>
+          <option value="non">Non</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Procédure syndicat copropriétaires ?</label>
+        <select id="b-procedure-copro">
+          <option value="non">Non</option>
+          <option value="oui">Oui</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Syndic</label>
+        <input type="text" id="b-syndic" placeholder="Nom du syndic">
+      </div>
+      <div class="form-group">
+        <label>Cadastre</label>
+        <input type="text" id="b-cadastre" placeholder="Référence cadastrale">
+      </div>
+      <div class="form-group form-full">
+        <label>Extérieur(s)</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" id="b-jardin"> Jardin</label>
+        </div>
+      </div>
+      <div class="form-section">DPE & Construction</div>
+      <div class="form-group">
+        <label>DPE</label>
+        <select id="b-dpe">
+          <option value="">—</option>
+          <option>A</option><option>B</option><option>C</option>
+          <option>D</option><option>E</option><option>F</option><option>G</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Classe GES</label>
+        <select id="b-ges">
+          <option value="">—</option>
+          <option>A</option><option>B</option><option>C</option>
+          <option>D</option><option>E</option><option>F</option><option>G</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Année de construction</label>
+        <input type="number" id="b-annee" placeholder="1970">
+      </div>
+      <div class="form-group">
+        <label>État général</label>
+        <select id="b-etat">
+          <option value="">—</option>
+          <option>Très bon état / récent</option>
+          <option>Bon état général</option>
+          <option>Travaux de rafraîchissement</option>
+          <option>Travaux importants</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Disponibilité</label>
+        <input type="date" id="b-dispo">
+      </div>
+      <div class="form-group">
+        <label>Occupant actuel</label>
+        <select id="b-occupant">
+          <option value="">—</option>
+          <option>Propriétaire occupant</option>
+          <option>Locataire en place</option>
+          <option>Libre</option>
+        </select>
+      </div>
+      <div class="form-section">Défiscalisation</div>
+      <div class="form-group">
+        <label>Éligible défiscalisation ?</label>
+        <select id="b-defisca">
+          <option value="non">Non</option>
+          <option value="oui">Oui</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Loi(s) applicable(s)</label>
+        <input type="text" id="b-defisca-lois" placeholder="Pinel, Denormandie, Malraux...">
+      </div>
+
+      <div class="form-section">Notaire</div>
+      <div class="form-group form-full">
+        <label>Notaire du vendeur</label>
+        <input type="text" id="b-notaire" placeholder="Maître Dupont — 12 rue de la Paix">
+      </div>
+
+      <div class="form-section">Usages & Bail (si locataire en place)</div>
+      <div class="form-group">
+        <label>Nom occupant</label>
+        <input type="text" id="b-occupant-nom" placeholder="Nom du locataire">
+      </div>
+      <div class="form-group">
+        <label>Tél occupant</label>
+        <input type="tel" id="b-occupant-tel" placeholder="06 00 00 00 00">
+      </div>
+      <div class="form-group">
+        <label>Loyer mensuel (€)</label>
+        <input type="number" id="b-loyer" placeholder="1200">
+      </div>
+      <div class="form-group">
+        <label>Type de bail</label>
+        <select id="b-bail-type">
+          <option value="">—</option>
+          <option>Nu 3 ans</option>
+          <option>Meublé 1 an</option>
+          <option>Mobilité</option>
+          <option>Commercial</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date fin de bail</label>
+        <input type="date" id="b-bail-fin">
+      </div>
+      <div class="form-group">
+        <label>Durée du bail</label>
+        <input type="text" id="b-bail-duree" placeholder="3 ans">
+      </div>
+      <div class="form-group">
+        <label>Début préavis</label>
+        <input type="date" id="b-preavis-debut">
+      </div>
+      <div class="form-group">
+        <label>Fin préavis</label>
+        <input type="date" id="b-preavis-fin">
+      </div>
+
+      <div class="form-section">Estimation</div>
+      <div class="form-group">
+        <label>Prix conseillé (€)</label>
+        <input type="number" id="b-prix-conseil" placeholder="487307">
+      </div>
+      <div class="form-group">
+        <label>Fourchette basse (€)</label>
+        <input type="number" id="b-prix-bas" placeholder="472688">
+      </div>
+      <div class="form-group">
+        <label>Fourchette haute (€)</label>
+        <input type="number" id="b-prix-haut" placeholder="501927">
+      </div>
+      <div class="form-group">
+        <label>Prix au m² estimé (€)</label>
+        <input type="number" id="b-prix-m2" placeholder="9555">
+      </div>
+      <div class="form-group form-full">
+        <label>Atouts identifiés</label>
+        <textarea id="b-atouts" placeholder="Calme, parties communes rénovées, charges faibles..."></textarea>
+      </div>
+      <div class="form-group form-full">
+        <label>Freins identifiés</label>
+        <textarea id="b-freins" placeholder="Vis-à-vis proche, luminosité, 1 seule chambre..."></textarea>
+      </div>
+      <div class="form-group form-full">
+        <label>Remarques / Notes</label>
+        <textarea id="b-remarques" placeholder="Syndic, procédure en cours, notes diverses..."></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="saveBien()">Enregistrer</button>
+      <button class="btn" onclick="closeModal('bien')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ACHETEUR -->
+<div class="overlay" id="modal-acheteur">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('acheteur')">✕</button>
+    <div class="modal-title" id="modal-acheteur-title">Nouvel acheteur</div>
+    <div class="form-grid">
+      <input type="hidden" id="a-id">
+      <div class="form-section">Identité</div>
+      <div class="form-group">
+        <label>Nom *</label>
+        <input type="text" id="a-nom" placeholder="Martin Sophie">
+      </div>
+      <div class="form-group">
+        <label>Téléphone</label>
+        <input type="tel" id="a-tel" placeholder="06 00 00 00 00">
+      </div>
+      <div class="form-group form-full">
+        <label>Email</label>
+        <input type="email" id="a-email" placeholder="email@exemple.fr">
+      </div>
+      <div class="form-section">Projet d'achat</div>
+      <div class="form-group">
+        <label>Type de projet</label>
+        <select id="a-projet">
+          <option>Résidence principale</option>
+          <option>Résidence secondaire</option>
+          <option>Investissement locatif</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Déjà propriétaire ?</label>
+        <select id="a-proprio">
+          <option value="non">Non</option>
+          <option value="oui">Oui</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date début recherche</label>
+        <input type="date" id="a-debut">
+      </div>
+      <div class="form-group">
+        <label>Date achat prévue</label>
+        <input type="date" id="a-achat-prevu">
+      </div>
+      <div class="form-section">Budget & Financement</div>
+      <div class="form-group">
+        <label>Budget max (€)</label>
+        <input type="number" id="a-budget" placeholder="500000">
+      </div>
+      <div class="form-group">
+        <label>Apport (€)</label>
+        <input type="number" id="a-apport" placeholder="50000">
+      </div>
+      <div class="form-group">
+        <label>Capacité mensuelle (€)</label>
+        <input type="number" id="a-mensualite" placeholder="2000">
+      </div>
+      <div class="form-group">
+        <label>Financement</label>
+        <select id="a-financement">
+          <option value="">—</option>
+          <option>Prêt validé</option>
+          <option>Simulation faite</option>
+          <option>À voir</option>
+          <option>Cash</option>
+        </select>
+      </div>
+      <div class="form-section">Critères de recherche</div>
+      <div class="form-group">
+        <label>Type de bien</label>
+        <select id="a-type">
+          <option>Appartement</option>
+          <option>Maison</option>
+          <option>Les deux</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Surface min (m²)</label>
+        <input type="number" id="a-surface" placeholder="40">
+      </div>
+      <div class="form-group">
+        <label>Surface idéale (m²)</label>
+        <input type="number" id="a-surface-ideale" placeholder="55">
+      </div>
+      <div class="form-group">
+        <label>Nb pièces min</label>
+        <input type="number" id="a-pieces" placeholder="2">
+      </div>
+      <div class="form-group">
+        <label>Nb chambres min</label>
+        <input type="number" id="a-chambres" placeholder="1">
+      </div>
+      <div class="form-group">
+        <label>Étage préféré</label>
+        <select id="a-etage-pref">
+          <option value="">— Indifférent —</option>
+          <option>RDC accepté</option>
+          <option>Étages bas (1-3)</option>
+          <option>Étages hauts</option>
+          <option>Dernier étage</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>DPE max accepté</label>
+        <select id="a-dpe-max">
+          <option value="">— Indifférent —</option>
+          <option>A</option><option>B</option><option>C</option>
+          <option>D</option><option>E</option><option>F</option><option>G</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>État du bien</label>
+        <select id="a-etat-bien">
+          <option value="">— Indifférent —</option>
+          <option>Clé en main uniquement</option>
+          <option>Rafraîchissement ok</option>
+          <option>Travaux importants ok</option>
+        </select>
+      </div>
+      <div class="form-group form-full">
+        <label>Secteur(s) de recherche</label>
+        <input type="text" id="a-secteur" placeholder="Paris 18e, Montmartre, Pigalle...">
+      </div>
+      <div class="form-group form-full">
+        <label>Quartiers / rues souhaités</label>
+        <input type="text" id="a-quartiers" placeholder="Rue Lepic, autour du Sacré-Cœur...">
+      </div>
+      <div class="form-group form-full">
+        <label>Quartiers exclus</label>
+        <input type="text" id="a-quartiers-exclus" placeholder="Zone X à éviter...">
+      </div>
+      <div class="form-group form-full">
+        <label>Critères essentiels (rédhibitoires)</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" id="a-asc"> Ascenseur</label>
+          <label class="check-item"><input type="checkbox" id="a-exterieur"> Extérieur (balcon/terrasse/jardin)</label>
+          <label class="check-item"><input type="checkbox" id="a-parking"> Parking</label>
+          <label class="check-item"><input type="checkbox" id="a-cave"> Cave</label>
+          <label class="check-item"><input type="checkbox" id="a-calme"> Au calme</label>
+          <label class="check-item"><input type="checkbox" id="a-lumineux"> Très lumineux</label>
+          <label class="check-item"><input type="checkbox" id="a-travaux"> Accepte travaux</label>
+          <label class="check-item"><input type="checkbox" id="a-rdc-exclu"> RDC exclu</label>
+          <label class="check-item"><input type="checkbox" id="a-garage"> Garage</label>
+          <label class="check-item"><input type="checkbox" id="a-piscine"> Piscine</label>
+          <label class="check-item"><input type="checkbox" id="a-gardien"> Gardien</label>
+          <label class="check-item"><input type="checkbox" id="a-sans-vis-a-vis"> Sans vis-à-vis</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Environnement souhaité</label>
+        <select id="a-environnement">
+          <option value="">— Indifférent —</option>
+          <option>Centre-ville</option>
+          <option>Quartier calme / résidentiel</option>
+          <option>Village / lotissement</option>
+          <option>Campagne</option>
+          <option>Proche mer</option>
+          <option>Proche montagne</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Transports requis</label>
+        <div class="check-grid">
+          <label class="check-item"><input type="checkbox" id="a-metro"> Métro</label>
+          <label class="check-item"><input type="checkbox" id="a-rer"> RER/Transilien</label>
+          <label class="check-item"><input type="checkbox" id="a-bus"> Bus</label>
+          <label class="check-item"><input type="checkbox" id="a-tram"> Tramway</label>
+        </div>
+      </div>
+      <div class="form-group form-full">
+        <label>Motivations profondes / histoire de vie</label>
+        <textarea id="a-motivations" placeholder="Pourquoi maintenant ? Famille, mutation, divorce, investissement... Ce que l'agent doit comprendre."></textarea>
+      </div>
+      <div class="form-group form-full">
+        <label>Ce qu'il ne veut ABSOLUMENT pas</label>
+        <textarea id="a-no-go" placeholder="RDC, trop petit, bruyant, pas d'ascenseur si 3e étage..."></textarea>
+      </div>
+      <div class="form-section">Visites</div>
+      <div class="form-group form-full">
+        <label>Biens visités (ou notes visites)</label>
+        <textarea id="a-visites" placeholder="Adresse, date, impression..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Date de rappel</label>
+        <input type="date" id="a-rappel">
+      </div>
+      <div class="form-group form-full">
+        <label>Commentaires</label>
+        <textarea id="a-comment" placeholder="Notes libres..."></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="saveAcheteur()">Enregistrer</button>
+      <button class="btn" onclick="closeModal('acheteur')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ PIECES & NIVEAUX ============
+function addPieceRow(data = {}) {
+  const container = document.getElementById('pieces-niveaux-container');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:80px 1fr 70px 1fr auto;gap:6px;align-items:start;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;';
+  row.innerHTML = `
+    <input type="text" placeholder="Étage" value="${data.etage||''}" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.8rem;padding:6px 8px;">
+    <input type="text" placeholder="Pièce (ex: Séjour, Chambre 1...)" value="${data.piece||''}" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.8rem;padding:6px 8px;">
+    <input type="number" placeholder="m²" value="${data.surface||''}" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.8rem;padding:6px 8px;">
+    <textarea placeholder="Description / commentaire (état, exposition, remarque...)" rows="2" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.8rem;padding:6px 8px;resize:vertical;">${data.description||''}</textarea>
+    <button type="button" onclick="this.parentElement.remove()" style="background:rgba(240,68,68,0.1);border:1px solid rgba(240,68,68,0.3);border-radius:6px;color:var(--red);padding:6px 8px;cursor:pointer;font-size:0.85rem;align-self:start;">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+function getPiecesNiveaux() {
+  const rows = document.querySelectorAll('#pieces-niveaux-container > div');
+  return Array.from(rows).map(row => {
+    const inputs = row.querySelectorAll('input, textarea');
+    return { etage: inputs[0].value, piece: inputs[1].value, surface: inputs[2].value, description: inputs[3].value };
+  }).filter(r => r.piece);
+}
+
+function renderPiecesNiveaux(pieces) {
+  const container = document.getElementById('pieces-niveaux-container');
+  if (!container) return;
+  container.innerHTML = '';
+  (pieces || []).forEach(p => addPieceRow(p));
+}
+
+// ============ STORAGE ============
+const DB = {
+  get: (k) => JSON.parse(localStorage.getItem(k) || '[]'),
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+  id: () => Date.now().toString(36) + Math.random().toString(36).slice(2,6)
+};
+
+// ============ STATE ============
+let editingId = { prospect: null, vendeur: null, bien: null, acheteur: null };
+let filters = { prospect: '', vendeur: '' };
+let promoteData = null;
+
+// ============ TABS ============
+function showTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  const btn = document.querySelector(`nav button[onclick="showTab('${tab}')"]`);
+  if (btn) btn.classList.add('active');
+  if (tab === 'prospects') renderList('prospect');
+  if (tab === 'vendeurs') renderList('vendeur');
+  if (tab === 'biens') renderList('bien');
+  if (tab === 'acheteurs') renderList('acheteur');
+  if (tab === 'dashboard') renderDashboard();
+}
+
+// ============ MODALS ============
+function openModal(type, id = null) {
+  clearForm(type);
+  editingId[type] = id;
+  if (id) {
+    const items = DB.get(type + 's');
+    const item = items.find(i => i.id === id);
+    if (item) fillForm(type, item);
+    document.getElementById('modal-' + type + '-title').textContent = 
+      { prospect: 'Modifier prospect', vendeur: 'Modifier vendeur', bien: 'Modifier bien', acheteur: 'Modifier acheteur' }[type];
+  } else {
+    document.getElementById('modal-' + type + '-title').textContent = 
+      { prospect: 'Nouveau prospect', vendeur: 'Nouveau vendeur', bien: 'Nouvelle fiche bien', acheteur: 'Nouvel acheteur' }[type];
+    if (type === 'vendeur') document.getElementById('btn-to-bien').style.display = 'none';
+    if (type === 'prospect') document.getElementById('btn-promote-vendeur').style.display = 'none';
+  }
+  if (type === 'bien') populateBienVendeurs(id ? DB.get('biens').find(b => b.id === id)?.vendeurId : null);
+  document.getElementById('modal-' + type).classList.add('open');
+  if (type === 'prospect') toggleRaisonField();
+}
+
+function closeModal(type) {
+  document.getElementById('modal-' + type).classList.remove('open');
+  promoteData = null;
+}
+
+function clearForm(type) {
+  const modal = document.getElementById('modal-' + type);
+  modal.querySelectorAll('input:not([type=hidden]), select, textarea').forEach(el => {
+    if (el.type === 'checkbox') el.checked = false;
+    else el.value = '';
+  });
+}
+
+function fillForm(type, item) {
+  if (type === 'prospect') {
+    document.getElementById('p-id').value = item.id;
+    document.getElementById('p-nom').value = item.nom || '';
+    document.getElementById('p-tel').value = item.tel || '';
+    document.getElementById('p-adresse').value = item.adresse || '';
+    document.getElementById('p-source').value = item.source || '';
+    document.getElementById('p-statut').value = item.statut || 'pas_repondu';
+    document.getElementById('p-raison').value = item.raison || '';
+    document.getElementById('p-rappel').value = item.rappel || '';
+    document.getElementById('p-comment').value = item.comment || '';
+    toggleRaisonField();
+    document.getElementById('btn-promote-vendeur').style.display = 'inline-flex';
+  }
+  if (type === 'vendeur') {
+    ['id','nom','tel','email','proprio','statut','motivation','achat-plu','comment-achat',
+     'demenagement','depuis','visites','offres','si-pas-vendu','prix-vendeur','rappel','comment'
+    ].forEach(f => {
+      const el = document.getElementById('v-' + f);
+      if (el) el.value = item[f.replace('-','_')] || item[f] || '';
+    });
+    document.getElementById('btn-to-bien').style.display = 'inline-flex';
+  }
+  if (type === 'bien') {
+    const checks = ['asc','balcon','terrasse','cave','gardien','digicode','fibre','parking','garage','piscine','alarme','portblindee','metro','bus','rer','tram','gare','videophone','climatisation','volets-elec','volets-man','survitrage','double-vitrage','barbecue','cour','portail-auto','acc-handicape','meuble','dernier-etage','jardin'];
+    const fields = ['id','adresse','type','surface','carrez','surface-sejour','pieces','chambres','etage','etages-total','sdb','sde','wc','cuisine','chauffage','type-chauffage','sol','menuiserie','isolation','parking-ext','parking-int','nb-garages','exposition','vis-a-vis','luminosite','calme','vue','charges','charges-annuelles','tf','th','lots','copro','procedure-copro','syndic','cadastre','dpe','ges','annee','etat','dispo','occupant','occupant-nom','occupant-tel','loyer','bail-type','bail-fin','bail-duree','preavis-debut','preavis-fin','defisca','defisca-lois','notaire','prix-estimation','prix-net','honoraires','prix-fai','prix-conseil','prix-bas','prix-haut','prix-m2','atouts','freins','remarques'];
+    fields.forEach(f => {
+      const el = document.getElementById('b-' + f);
+      if (el) el.value = item[f] || '';
+    });
+    checks.forEach(c => {
+      const el = document.getElementById('b-' + c);
+      if (el) el.checked = item[c] || false;
+    });
+    setTimeout(() => renderPiecesNiveaux(item.piecesNiveaux), 50);
+  }
+  if (type === 'acheteur') {
+    const checks = ['asc','exterieur','parking','cave','calme','lumineux','travaux','rdc-exclu','garage','piscine','gardien','sans-vis-a-vis','metro','rer','bus','tram'];
+    const fields = ['id','nom','tel','email','projet','proprio','debut','achat-prevu','budget','apport','mensualite','financement','type','surface','surface-ideale','pieces','chambres','etage-pref','dpe-max','etat-bien','secteur','quartiers','quartiers-exclus','environnement','visites','rappel','comment','motivations','no-go'];
+    fields.forEach(f => {
+      const el = document.getElementById('a-' + f);
+      if (el) el.value = item[f] || '';
+    });
+    checks.forEach(c => {
+      const el = document.getElementById('a-' + c);
+      if (el) el.checked = item[c] || false;
+    });
+  }
+}
+
+function toggleRaisonField() {
+  const statut = document.getElementById('p-statut').value;
+  document.getElementById('p-raison-group').style.display = statut === 'refus' ? 'flex' : 'none';
+}
+document.getElementById('p-statut').addEventListener('change', toggleRaisonField);
+
+function populateBienVendeurs(selectedId = null) {
+  const sel = document.getElementById('b-vendeur-id');
+  const vendeurs = DB.get('vendeurs');
+  sel.innerHTML = '<option value="">— Aucun —</option>';
+  vendeurs.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.id;
+    opt.textContent = v.nom;
+    if (v.id === selectedId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+// ============ SAVE ============
+function saveProspect() {
+  const nom = document.getElementById('p-nom').value.trim();
+  if (!nom) { alert('Le nom est obligatoire.'); return; }
+  const data = {
+    id: editingId.prospect || DB.id(),
+    nom, tel: document.getElementById('p-tel').value,
+    adresse: document.getElementById('p-adresse').value,
+    source: document.getElementById('p-source').value,
+    statut: document.getElementById('p-statut').value,
+    raison: document.getElementById('p-raison').value,
+    rappel: document.getElementById('p-rappel').value,
+    comment: document.getElementById('p-comment').value,
+    updatedAt: new Date().toISOString()
+  };
+  saveItem('prospects', data, editingId.prospect);
+  closeModal('prospect');
+  renderList('prospect');
+  renderDashboard();
+}
+
+function saveVendeur() {
+  const nom = document.getElementById('v-nom').value.trim();
+  if (!nom) { alert('Le nom est obligatoire.'); return; }
+  const data = {
+    id: editingId.vendeur || DB.id(),
+    nom, tel: document.getElementById('v-tel').value,
+    email: document.getElementById('v-email').value,
+    proprio: document.getElementById('v-proprio').value,
+    statut: document.getElementById('v-statut').value,
+    motivation: document.getElementById('v-motivation').value,
+    'achat-plu': document.getElementById('v-achat-plu').value,
+    'comment-achat': document.getElementById('v-comment-achat').value,
+    demenagement: document.getElementById('v-demenagement').value,
+    depuis: document.getElementById('v-depuis').value,
+    visites: document.getElementById('v-visites').value,
+    offres: document.getElementById('v-offres').value,
+    'si-pas-vendu': document.getElementById('v-si-pas-vendu').value,
+    'prix-vendeur': document.getElementById('v-prix-vendeur').value,
+    rappel: document.getElementById('v-rappel').value,
+    comment: document.getElementById('v-comment').value,
+    updatedAt: new Date().toISOString()
+  };
+  saveItem('vendeurs', data, editingId.vendeur);
+  closeModal('vendeur');
+  renderList('vendeur');
+  renderDashboard();
+}
+
+function saveBien() {
+  const adresse = document.getElementById('b-adresse').value.trim();
+  if (!adresse) { alert('L\'adresse est obligatoire.'); return; }
+  const checks = ['asc','balcon','terrasse','cave','gardien','digicode','fibre','parking','garage','piscine','alarme','portblindee','metro','bus','rer','tram','gare','videophone','climatisation','volets-elec','volets-man','survitrage','double-vitrage','barbecue','cour','portail-auto','acc-handicape','meuble','dernier-etage','jardin'];
+  const fields = ['id','adresse','type','surface','carrez','surface-sejour','pieces','chambres','etage','etages-total','sdb','sde','wc','cuisine','chauffage','type-chauffage','sol','menuiserie','isolation','parking-ext','parking-int','nb-garages','exposition','vis-a-vis','luminosite','calme','vue','charges','charges-annuelles','tf','th','lots','copro','procedure-copro','syndic','cadastre','dpe','ges','annee','etat','dispo','occupant','occupant-nom','occupant-tel','loyer','bail-type','bail-fin','bail-duree','preavis-debut','preavis-fin','defisca','defisca-lois','notaire','prix-estimation','prix-net','honoraires','prix-fai','prix-conseil','prix-bas','prix-haut','prix-m2','atouts','freins','remarques'];
+  const data = { id: editingId.bien || DB.id(), updatedAt: new Date().toISOString() };
+  fields.forEach(f => { const el = document.getElementById('b-' + f); if (el) data[f] = el.value; });
+  checks.forEach(c => { const el = document.getElementById('b-' + c); if (el) data[c] = el.checked; });
+  data.vendeurId = document.getElementById('b-vendeur-id').value;
+  data.piecesNiveaux = getPiecesNiveaux();
+  saveItem('biens', data, editingId.bien);
+  closeModal('bien');
+  renderList('bien');
+  renderDashboard();
+}
+
+function saveAcheteur() {
+  const nom = document.getElementById('a-nom').value.trim();
+  if (!nom) { alert('Le nom est obligatoire.'); return; }
+  const checks = ['asc','exterieur','parking','cave','calme','lumineux','travaux','rdc-exclu','garage','piscine','gardien','sans-vis-a-vis','metro','rer','bus','tram'];
+  const fields = ['id','nom','tel','email','projet','proprio','debut','achat-prevu','budget','apport','mensualite','financement','type','surface','surface-ideale','pieces','chambres','etage-pref','dpe-max','etat-bien','secteur','quartiers','quartiers-exclus','environnement','visites','rappel','comment','motivations','no-go'];
+  const data = { id: editingId.acheteur || DB.id(), updatedAt: new Date().toISOString() };
+  fields.forEach(f => { const el = document.getElementById('a-' + f); if (el) data[f] = el.value; });
+  checks.forEach(c => { const el = document.getElementById('a-' + c); if (el) data[c] = el.checked; });
+  saveItem('acheteurs', data, editingId.acheteur);
+  closeModal('acheteur');
+  renderList('acheteur');
+  renderDashboard();
+}
+
+function saveItem(key, data, existingId) {
+  const items = DB.get(key);
+  if (existingId) {
+    const idx = items.findIndex(i => i.id === existingId);
+    if (idx >= 0) items[idx] = data;
+  } else {
+    items.unshift(data);
+  }
+  DB.set(key, items);
+}
+
+function deleteItem(key, id) {
+  if (!confirm('Supprimer cet élément ?')) return;
+  const items = DB.get(key).filter(i => i.id !== id);
+  DB.set(key, items);
+  renderList(key.replace(/s$/, ''));
+  renderDashboard();
+}
+
+// ============ PROMOTE ============
+function promoteToVendeur() {
+  const nom = document.getElementById('p-nom').value.trim();
+  const tel = document.getElementById('p-tel').value;
+  const adresse = document.getElementById('p-adresse').value;
+  closeModal('prospect');
+  openModal('vendeur');
+  document.getElementById('v-nom').value = nom;
+  document.getElementById('v-tel').value = tel;
+  document.getElementById('v-motivation').value = adresse ? 'Bien : ' + adresse : '';
+  document.getElementById('v-statut').value = 'prospect';
+}
+
+function promoteVendeurToBien() {
+  const nom = document.getElementById('v-nom').value.trim();
+  const motivation = document.getElementById('v-motivation').value;
+  saveVendeur();
+  openModal('bien');
+  document.getElementById('b-adresse').value = motivation.replace('Bien : ', '') || '';
+  populateBienVendeurs(null);
+}
+
+// ============ FILTER ============
+function filterList(type, val) {
+  filters[type] = val;
+  document.querySelectorAll('#pipeline-' + type + ' .pipeline-step').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderList(type);
+}
+
+// ============ RENDER ============
+const STATUT_MAP = {
+  pas_repondu: ['pill-muted', 'Pas répondu'],
+  rappeler: ['pill-orange', 'À rappeler'],
+  interesse: ['pill-green', 'Intéressé'],
+  refus: ['pill-red', 'Refus'],
+  prospect: ['pill-blue', 'Prospect'],
+  rdv_fixe: ['pill-orange', 'RDV fixé'],
+  rdv_fait: ['pill-purple', 'RDV fait'],
+  mandat: ['pill-gold', 'Mandat'],
+  vendu: ['pill-green', 'Vendu ✓']
+};
+
+function renderList(type) {
+  const key = type + 's';
+  let items = DB.get(key);
+  if (filters[type]) items = items.filter(i => i.statut === filters[type]);
+
+  const container = document.getElementById('list-' + key);
+  if (!items.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">📭</div>Aucun élément pour l'instant.</div>`;
+    return;
+  }
+
+  container.innerHTML = items.map(item => renderCard(type, item)).join('');
+}
+
+function renderCard(type, item) {
+  const [pillClass, pillLabel] = STATUT_MAP[item.statut] || ['pill-muted', item.statut || '—'];
+  let title = '', sub = '', body = '', actions = '';
+
+  if (type === 'prospect') {
+    title = item.nom;
+    sub = [item.tel, item.source].filter(Boolean).join(' · ');
+    body = [
+      item.adresse ? `📍 ${item.adresse}` : '',
+      item.rappel ? `📅 Rappel : <strong>${fmtDate(item.rappel)}</strong>` : '',
+      item.raison ? `↩️ ${item.raison}` : '',
+      item.comment ? `💬 ${item.comment}` : ''
+    ].filter(Boolean).join('<br>');
+    actions = `
+      <button class="btn" onclick="openModal('prospect','${item.id}')">Modifier</button>
+      <button class="btn btn-promote" onclick="openModal('prospect','${item.id}');setTimeout(()=>promoteToVendeur(),50)">→ Vendeur</button>
+      <button class="btn btn-danger" onclick="deleteItem('prospects','${item.id}')">Supprimer</button>`;
+  }
+
+  if (type === 'vendeur') {
+    title = item.nom;
+    sub = [item.tel, item.email].filter(Boolean).join(' · ');
+    body = [
+      item.motivation ? `💡 ${item.motivation}` : '',
+      item.depuis ? `⏳ En vente : ${item.depuis}` : '',
+      item.demenagement ? `📅 Déménagement souhaité : ${fmtDate(item.demenagement)}` : '',
+      item.rappel ? `🔔 Rappel : <strong>${fmtDate(item.rappel)}</strong>` : '',
+      item['prix-vendeur'] ? `💶 Prix vendeur : ${fmtEuro(item['prix-vendeur'])}` : ''
+    ].filter(Boolean).join('<br>');
+    const biens = DB.get('biens').filter(b => b.vendeurId === item.id);
+    const bienLinks = biens.map(b => `<span class="link-tag">🏡 ${b.adresse?.substring(0,30) || 'Bien lié'}</span>`).join(' ');
+    actions = `
+      <button class="btn" onclick="openModal('vendeur','${item.id}')">Modifier</button>
+      ${bienLinks}
+      <button class="btn btn-danger" onclick="deleteItem('vendeurs','${item.id}')">Supprimer</button>`;
+  }
+
+  if (type === 'bien') {
+    title = item.adresse || 'Adresse inconnue';
+    sub = [item.type, item.surface ? item.surface + ' m²' : '', item.pieces ? item.pieces + ' pièces' : '', item.dpe ? 'DPE ' + item.dpe : ''].filter(Boolean).join(' · ');
+    const vendeur = item.vendeurId ? DB.get('vendeurs').find(v => v.id === item.vendeurId) : null;
+    body = [
+      vendeur ? `👤 Vendeur : ${vendeur.nom}` : '',
+      item['prix-conseil'] ? `💶 Prix conseillé : <strong>${fmtEuro(item['prix-conseil'])}</strong> (${item['prix-m2'] ? item['prix-m2'] + ' €/m²' : ''})` : '',
+      item['prix-bas'] && item['prix-haut'] ? `📊 Fourchette : ${fmtEuro(item['prix-bas'])} — ${fmtEuro(item['prix-haut'])}` : '',
+      item.etat ? `🔧 État : ${item.etat}` : '',
+      item.atouts ? `✅ Atouts : ${item.atouts}` : '',
+      item.freins ? `⚠️ Freins : ${item.freins}` : ''
+    ].filter(Boolean).join('<br>');
+    actions = `
+      <button class="btn" onclick="openModal('bien','${item.id}')">Modifier</button>
+      <button class="btn btn-danger" onclick="deleteItem('biens','${item.id}')">Supprimer</button>`;
+    return `<div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">${title}</div>
+          <div class="card-sub">${sub}</div>
+        </div>
+        <span class="pill pill-gold">Bien</span>
+      </div>
+      <div class="card-body">${body}</div>
+      <div class="card-actions">${actions}</div>
+    </div>`;
+  }
+
+  if (type === 'acheteur') {
+    title = item.nom;
+    sub = [item.tel, item.email].filter(Boolean).join(' · ');
+    const criteres = [];
+    if (item.budget) criteres.push(`💶 ${fmtEuro(item.budget)}`);
+    if (item.surface) criteres.push(`📐 ${item.surface}m² min`);
+    if (item.pieces) criteres.push(`🚪 ${item.pieces} pièces`);
+    if (item.secteur) criteres.push(`📍 ${item.secteur}`);
+    body = [
+      item.projet ? `🎯 ${item.projet}` : '',
+      criteres.join(' · '),
+      item.apport ? `🏦 Apport : ${fmtEuro(item.apport)}` : '',
+      item.financement ? `📋 Financement : ${item.financement}` : '',
+      item.rappel ? `🔔 Rappel : <strong>${fmtDate(item.rappel)}</strong>` : '',
+      item.visites ? `🏠 Visites : ${item.visites}` : ''
+    ].filter(Boolean).join('<br>');
+    actions = `
+      <button class="btn" onclick="openModal('acheteur','${item.id}')">Modifier</button>
+      <button class="btn btn-danger" onclick="deleteItem('acheteurs','${item.id}')">Supprimer</button>`;
+    return `<div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">${title}</div>
+          <div class="card-sub">${sub}</div>
+        </div>
+        <span class="pill pill-blue">Acheteur</span>
+      </div>
+      <div class="card-body">${body}</div>
+      <div class="card-actions">${actions}</div>
+    </div>`;
+  }
+
+  return `<div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">${title}</div>
+        <div class="card-sub">${sub}</div>
+      </div>
+      <span class="pill ${pillClass}">${pillLabel}</span>
+    </div>
+    <div class="card-body">${body}</div>
+    <div class="card-actions">${actions}</div>
+  </div>`;
+}
+
+// ============ DASHBOARD ============
+function renderDashboard() {
+  const prospects = DB.get('prospects');
+  const vendeurs = DB.get('vendeurs');
+  const biens = DB.get('biens');
+  const acheteurs = DB.get('acheteurs');
+  const today = todayStr();
+
+  // Stats
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${prospects.length}</div><div class="stat-label">📞 Prospects</div></div>
+    <div class="stat-card"><div class="stat-num">${vendeurs.length}</div><div class="stat-label">🤝 Vendeurs</div></div>
+    <div class="stat-card"><div class="stat-num">${biens.length}</div><div class="stat-label">🏡 Biens</div></div>
+    <div class="stat-card"><div class="stat-num">${acheteurs.length}</div><div class="stat-label">🔍 Acheteurs</div></div>
+  `;
+
+  // Alertes aujourd'hui
+  const todayAlerts = [];
+  const upcomingAlerts = [];
+  const in7 = new Date(); in7.setDate(in7.getDate() + 7);
+  const in7str = in7.toISOString().split('T')[0];
+
+  const allWithRappel = [
+    ...prospects.filter(i => i.rappel).map(i => ({...i, _type:'Prospect', _color:'orange'})),
+    ...vendeurs.filter(i => i.rappel).map(i => ({...i, _type:'Vendeur', _color:'gold'})),
+    ...acheteurs.filter(i => i.rappel).map(i => ({...i, _type:'Acheteur', _color:'blue'}))
+  ];
+
+  allWithRappel.forEach(item => {
+    if (item.rappel <= today) todayAlerts.push(item);
+    else if (item.rappel <= in7str) upcomingAlerts.push(item);
+  });
+
+  // Badges nav
+  updateBadge('tab-prospects', prospects.filter(i => i.rappel && i.rappel <= today).length);
+  updateBadge('tab-vendeurs', vendeurs.filter(i => i.rappel && i.rappel <= today).length);
+  updateBadge('tab-acheteurs', acheteurs.filter(i => i.rappel && i.rappel <= today).length);
+
+  const renderAlert = (item, urgent) => `
+    <div class="alert-card">
+      <div class="icon">${urgent ? '🔴' : '🟡'}</div>
+      <div class="info">
+        <strong>${item.nom}</strong>
+        <span>${item._type} · Rappel ${urgent ? 'aujourd\'hui' : 'le ' + fmtDate(item.rappel)}</span>
+        ${item.comment ? `<span style="display:block;margin-top:2px;font-size:0.72rem;color:var(--text-muted)">${item.comment.substring(0,60)}</span>` : ''}
+      </div>
+    </div>`;
+
+  const todayDiv = document.getElementById('today-alerts');
+  todayDiv.innerHTML = todayAlerts.length
+    ? todayAlerts.map(a => renderAlert(a, true)).join('')
+    : '<div style="color:var(--text-muted);font-size:0.82rem;padding:10px 0">✅ Aucun rappel urgent aujourd\'hui.</div>';
+
+  const upDiv = document.getElementById('upcoming-alerts');
+  upDiv.innerHTML = upcomingAlerts.length
+    ? upcomingAlerts.map(a => renderAlert(a, false)).join('')
+    : '<div style="color:var(--text-muted);font-size:0.82rem;padding:10px 0">Aucun rappel dans les 7 prochains jours.</div>';
+
+  // Mandats actifs
+  const mandats = vendeurs.filter(v => v.statut === 'mandat');
+  if (mandats.length) {
+    document.getElementById('alert-banner').style.display = 'block';
+    document.getElementById('alert-banner').innerHTML = `🏆 <strong>${mandats.length} mandat(s) actif(s)</strong> — ${mandats.map(m => m.nom).join(', ')}`;
+  }
+}
+
+function updateBadge(tabId, count) {
+  const btn = document.getElementById(tabId);
+  if (!btn) return;
+  const existing = btn.querySelector('.badge');
+  if (existing) existing.remove();
+  if (count > 0) {
+    const b = document.createElement('span');
+    b.className = 'badge';
+    b.textContent = count;
+    btn.appendChild(b);
+  }
+}
+
+// ============ UTILS ============
+function fmtDate(str) {
+  if (!str) return '';
+  const [y,m,d] = str.split('-');
+  return `${d}/${m}/${y}`;
+}
+function fmtEuro(n) {
+  return Number(n).toLocaleString('fr-FR') + ' €';
+}
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+// ============ INIT ============
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'short'});
+
+// Close modal on overlay click
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => {
+    if (e.target === o) {
+      const type = o.id.replace('modal-', '');
+      closeModal(type);
+    }
+  });
+});
+
+renderDashboard();
+
+// ============ GOOGLE DRIVE SYNC ============
+const GDRIVE = {
+  CLIENT_ID: '37826660808-ih8jtps9u43a9isvo0i0qfdrvlm3183r.apps.googleusercontent.com',
+  SCOPES: 'https://www.googleapis.com/auth/drive.appdata',
+  FILE_NAME: 'crm-immo-tristan.json',
+  token: null,
+  fileId: null
+};
+
+function driveSetStatus(msg, type = '') {
+  const el = document.getElementById('drive-status');
+  el.textContent = msg;
+  el.style.display = msg ? 'inline' : 'none';
+  el.style.color = type === 'ok' ? 'var(--green)' : type === 'err' ? 'var(--red)' : 'var(--text-muted)';
+}
+
+function driveConnect() {
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: GDRIVE.CLIENT_ID,
+    scope: GDRIVE.SCOPES,
+    callback: async (resp) => {
+      if (resp.error) { driveSetStatus('Erreur connexion', 'err'); return; }
+      GDRIVE.token = resp.access_token;
+      document.getElementById('drive-connect-btn').style.display = 'none';
+      document.getElementById('drive-save-btn').style.display = 'flex';
+      document.getElementById('drive-load-btn').style.display = 'flex';
+      driveSetStatus('✓ Connecté', 'ok');
+      // Auto-load on connect
+      await driveLoad();
+    }
+  });
+  client.requestAccessToken();
+}
+
+function driveGetAllData() {
+  return {
+    prospects: DB.get('prospects'),
+    vendeurs: DB.get('vendeurs'),
+    biens: DB.get('biens'),
+    acheteurs: DB.get('acheteurs'),
+    savedAt: new Date().toISOString()
+  };
+}
+
+function driveRestoreAllData(data) {
+  if (data.prospects) DB.set('prospects', data.prospects);
+  if (data.vendeurs)  DB.set('vendeurs',  data.vendeurs);
+  if (data.biens)     DB.set('biens',     data.biens);
+  if (data.acheteurs) DB.set('acheteurs', data.acheteurs);
+}
+
+async function driveFindFile() {
+  const r = await fetch(
+    `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${GDRIVE.FILE_NAME}'&fields=files(id,name,modifiedTime)`,
+    { headers: { Authorization: `Bearer ${GDRIVE.TOKEN || GDRIVE.token}` } }
+  );
+  const d = await r.json();
+  return d.files && d.files.length > 0 ? d.files[0] : null;
+}
+
+async function driveSave() {
+  if (!GDRIVE.token) { driveSetStatus('Non connecté', 'err'); return; }
+  const btn = document.getElementById('drive-save-btn');
+  btn.textContent = '⏳ Sauvegarde...';
+  btn.className = 'drive-btn syncing';
+  driveSetStatus('Sauvegarde en cours...');
+  try {
+    const content = JSON.stringify(driveGetAllData(), null, 2);
+    const blob = new Blob([content], { type: 'application/json' });
+    let url, method, headers;
+
+    // Check if file already exists
+    const existing = await driveFindFile();
+
+    if (existing) {
+      url = `https://www.googleapis.com/upload/drive/v3/files/${existing.id}?uploadType=media`;
+      method = 'PATCH';
+    } else {
+      // Create with metadata first
+      const meta = await fetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${GDRIVE.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: GDRIVE.FILE_NAME, parents: ['appDataFolder'] })
+      });
+      const metaData = await meta.json();
+      url = `https://www.googleapis.com/upload/drive/v3/files/${metaData.id}?uploadType=media`;
+      method = 'PATCH';
+    }
+
+    await fetch(url, {
+      method,
+      headers: { Authorization: `Bearer ${GDRIVE.token}`, 'Content-Type': 'application/json' },
+      body: content
+    });
+
+    btn.textContent = '💾 Sauver';
+    btn.className = 'drive-btn connected';
+    const now = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    driveSetStatus(`✓ Sauvé à ${now}`, 'ok');
+    setTimeout(() => driveSetStatus(''), 4000);
+  } catch(e) {
+    btn.textContent = '💾 Sauver';
+    btn.className = 'drive-btn connected';
+    driveSetStatus('Erreur sauvegarde', 'err');
+  }
+}
+
+async function driveLoad() {
+  if (!GDRIVE.token) { driveSetStatus('Non connecté', 'err'); return; }
+  const btn = document.getElementById('drive-load-btn');
+  btn.textContent = '⏳ Chargement...';
+  driveSetStatus('Chargement...');
+  try {
+    const existing = await driveFindFile();
+    if (!existing) {
+      btn.textContent = '🔄 Charger';
+      driveSetStatus('Aucune sauvegarde trouvée', '');
+      setTimeout(() => driveSetStatus(''), 3000);
+      return;
+    }
+    const r = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${existing.id}?alt=media`,
+      { headers: { Authorization: `Bearer ${GDRIVE.token}` } }
+    );
+    const data = await r.json();
+    driveRestoreAllData(data);
+    btn.textContent = '🔄 Charger';
+    const savedAt = data.savedAt ? new Date(data.savedAt).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+    driveSetStatus(`✓ Chargé${savedAt ? ' (sauvé le ' + savedAt + ')' : ''}`, 'ok');
+    setTimeout(() => driveSetStatus(''), 5000);
+    renderDashboard();
+    // Refresh active tab
+    const activeTab = document.querySelector('.section.active')?.id;
+    if (activeTab && activeTab !== 'dashboard') {
+      const type = activeTab.replace(/s$/, '');
+      renderList(type === 'acheteur' ? 'acheteur' : type);
+    }
+  } catch(e) {
+    btn.textContent = '🔄 Charger';
+    driveSetStatus('Erreur chargement', 'err');
+  }
+}
+
+// Auto-save after every saveItem
+const _origSaveItem = saveItem;
+window.saveItem = function(key, data, existingId) {
+  _origSaveItem(key, data, existingId);
+  if (GDRIVE.token) {
+    setTimeout(() => driveSave(), 500);
+  }
+};
+
+</script>
+</body>
+</html>
